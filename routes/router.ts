@@ -21,6 +21,20 @@ router.post('/mensajes/:id', ( req: Request, res: Response) =>{
     const de     = req.body.de;
     const id     = req.params.id;
 
+    const payload = {
+        de,
+        cuerpo
+    }
+
+    const server = Server.instance;
+
+    // Mensaje Privado
+    server.io.in( id ).emit( 'mensaje-privado', payload );
+
+    // Mensaje Publico
+    server.io.emit( 'mensaje-nuevo', payload );
+
+
     res.json({
         ok:true,
         cuerpo,
