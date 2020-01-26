@@ -3,16 +3,52 @@ import { Router, Request, Response} from 'express';
 import Server from '../classes/server';
 import { Socket } from 'socket.io';
 import { usuariosConectados } from '../sockets/socket';
+import { GraficaData } from '../classes/grafica';
 
 export const router = Router();
 
+const grafica = new GraficaData();
 
-router.get('/mensajes', ( req: Request, res: Response) =>{
+router.get('/grafica', ( req: Request, res: Response) =>{
 
-    res.json({
-        ok:true,
-        mensaje: 'Todo esta bien!!'
-    })
+    res.json( grafica.getDataGrafica() );
+
+
+});
+
+router.post('/grafica', ( req: Request, res: Response) =>{
+
+    const mes      = req.body.mes;
+    const unidades = Number(req.body.unidades);
+
+    grafica.incrementarValor( mes, unidades);
+
+    const server = Server.instance;
+    server.io.emit('cambio-grafica', grafica.getDataGrafica() );
+
+    res.json( grafica.getDataGrafica() );
+
+
+});
+
+router.get('/graficabarra', ( req: Request, res: Response) =>{
+
+    res.json( grafica.getDataGraficaBarra() );
+
+
+});
+
+router.post('/graficabarra', ( req: Request, res: Response) =>{
+
+    const opcion   = Number(req.body.opcion);
+    const unidades = Number(req.body.unidades);
+
+    grafica.incrementarValorBarra( opcion, unidades);
+
+    const server = Server.instance;
+    server.io.emit('cambio-graficabarra', grafica.getDataGraficaBarra() );
+
+    res.json( grafica.getDataGraficaBarra() );
 
 
 });
